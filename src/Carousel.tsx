@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Carousel from 'react-material-ui-carousel';
-import { Paper, Button } from '@mui/material';
+import { Paper, Button, useTheme } from '@mui/material';
+import { keyframes } from '@emotion/react';
 
 interface Item {
     id: number;
@@ -89,8 +90,15 @@ const navButtonStyle = {
     justifyContent: 'center',
 };
 
+const blinkAnimation = keyframes`
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+`;
+
 const Example: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const theme = useTheme();
 
     const handleNext = () => {
         setCurrentIndex(prevIndex => Math.min(prevIndex + 1, items.length - 3));
@@ -115,7 +123,7 @@ const Example: React.FC = () => {
                 interval={5000}
                 navButtonsProps={{ style: navButtonStyle }}
             >
-                <ItemGroup items={items.slice(currentIndex, currentIndex + 3)} />
+                <ItemGroup items={items.slice(currentIndex, currentIndex + 3)} theme={theme} />
             </Carousel>
             <Button onClick={handleNext} disabled={currentIndex >= items.length - 3} style={{ ...buttonStyle, position: 'absolute', right: '10px', zIndex: 1 }}>
                 Next
@@ -125,7 +133,7 @@ const Example: React.FC = () => {
     );
 };
 
-const ItemGroup: React.FC<{ items: Item[] }> = ({ items }) => {
+const ItemGroup: React.FC<{ items: Item[], theme: any }> = ({ items, theme }) => {
     return (
         <Paper style={{
             display: 'flex',
@@ -154,7 +162,16 @@ const ItemGroup: React.FC<{ items: Item[] }> = ({ items }) => {
                     <ImageCarousel images={item.images} />
                     <h2>{item.name}</h2>
                     <p>{item.description}</p>
-                    <Button className="CheckButton">Check it out!</Button>
+                    <Button 
+                        className="CheckButton" 
+                        style={{ 
+                            backgroundColor: theme.palette.secondary.main,
+                            animation: `${blinkAnimation} 1s infinite`,
+                            color: 'white',
+                        }}
+                    >
+                        Check it out!
+                    </Button>
                 </div>
             ))}
         </Paper>
@@ -165,6 +182,7 @@ const ImageCarousel: React.FC<{ images: string[] }> = ({ images }) => {
     return (
         <Carousel
             autoPlay={true}
+            navButtonsAlwaysInvisible
             animation="fade"
             navButtonsAlwaysVisible
             indicators={false}
